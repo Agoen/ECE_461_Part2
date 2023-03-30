@@ -4,7 +4,7 @@ import sys
 import os
 import time
 
-
+#getting license name
 def license_name(file_name):
     # read the file
     urls = []
