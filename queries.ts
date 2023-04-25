@@ -1,4 +1,5 @@
 #!/usr/bin/env tsc
+import { writeFile } from 'fs';
 import fetch from 'node-fetch';
 
 interface Package
@@ -51,6 +52,12 @@ async function regex_search(regex: RegExp): Promise<Package[]>
         packages = [...packages, ...pagePackages.filter(pkg => pkg.name.match(regex) || (pkg.readme && pkg.readme.match(regex)))];
         page++;
     }
+
+    //write packages to package directory
+    const fs = require('fs');
+    const content = packages.toString;
+    fs.writeFile('packages.txt', content, {flag: 'w',});
+
     return packages;
 }
     
