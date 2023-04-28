@@ -3,6 +3,7 @@
     <head>
         <meta name = 'viewport' content="width=device-width, initial-scale=1.0">
         <title>Package Search</title>
+        <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
         <link rel="stylesheet" href="style.css">
         <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
     </head>
@@ -20,6 +21,7 @@
             <button class="upload-button">Upload</button>
             <button id="rate-button" class="rate-button">Rate</button>
             <button class="download-button">Download</button>
+            <button class="download-button">Clear</button>
             <b>URLs:</b>
             <p id="urls">
 
@@ -57,5 +59,6 @@
             </div>
         </div>
     </div>
+    <py-script src="api_calls.py"></py-script>
 </body>
 </html>
