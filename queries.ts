@@ -1,5 +1,4 @@
 #!/usr/bin/env tsc
-import { writeFile } from 'fs';
 import fetch from 'node-fetch';
 
 interface Package
@@ -23,8 +22,6 @@ async function fetch_pkgdir(): Promise<Package[]>
         {
             break;
         }
-        packages = [...packages, ...json.objects.map((obj: any) => ({ name: obj.package.name, version: obj.package.version }))];
-        page++;
     }
     return packages;
 }
