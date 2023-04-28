@@ -50,11 +50,6 @@ async function regex_search(regex: RegExp): Promise<Package[]>
         page++;
     }
 
-    //write packages to package directory
-    const fs = require('fs');
-    const content = packages.toString;
-    fs.writeFile('packages.txt', content, {flag: 'w',});
-
     return packages;
 }
     
