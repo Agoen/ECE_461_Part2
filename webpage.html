@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name = 'viewport' content="width=device-width, initial-scale=1.0">
+        <title>Package Search</title>
+        <link rel="stylesheet" href="style.css">
+        <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
+    </head>
+<body>
+    <div class="header">
+        <h1><center>ACME</center></h1>
+    </div>
+    <div class="container">
+        <div class="sub-container">
+            <form action="" class="package-search">
+                <input id="url" type="text" placeholder="Input Package Here" name="url">
+                <button id="submit-button" class="submit-button" type="button">Submit</button>
+            </form>
+            <button class="update-button">Update</button>
+            <button class="upload-button">Upload</button>
+            <button id="rate-button" class="rate-button">Rate</button>
+            <button class="download-button">Download</button>
+            <b>URLs:</b>
+            <p id="urls">
+
+                <!-- code for displaying whatever urls that the user wants to do functions on -->
+                <script>
+                    const rate_button = document.getElementById("rate-button");
+                    const button = document.getElementById("submit-button");
+                    button.addEventListener("click", addURL);
+                    button.addEventListener("click", displayURLs);
+                    rate_button.addEventListener("click", displayRatings)
+
+                    let url;
+
+                    function addURL() {
+                        url = document.getElementById("url").value;
+                        url = url.toLowerCase();
+                    }
+
+                    function displayURLs(){
+                        document.getElementById("urls").innerHTML = url;
+                    }
+
+                    function displayRatings(){
+                        document.getElementById("score-list").innerHTML = url;
+                    }
+                </script>
+
+
+        </div>
+        <div class="display-results">
+            <div class="table">
+                <h2><center>Rating Of Package</center></h2>
+                    <ul id="score-list">
+                    </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
