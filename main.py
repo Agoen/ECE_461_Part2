@@ -1,242 +1,156 @@
-#!/usr/bin/ python3
+from flask import Flask
+from flask import request
+import git
+import base64
 
-import sys
-import os
-import time
+app = Flask(__name__)
 
-#getting license name
-def license_name(file_name):
-    # read the file
-    urls = []
-    with open(file_name, 'r') as f:
-        lines = f.readlines()
-        for line in lines:
-            urls.append(line.strip())
+ids = []
 
-    # get the license name
-    import requests
+def encode_base_64(message):
+    message_in_bytes = message.encode('ascii')
+    message_in_base_64 = base64.b64encode(message_in_bytes)
+    return  message_in_base_64
+def decode_base_64(message_in_base_64):
+    message_in_bytes = message_in_base_64.encode('ascii')
+    message = base64.b64decode(message_in_bytes)
+    return message
 
-    if  os.environ.get("GITHUB_TOKEN") == None:
-        print("Could not find GITHUB_TOKEN")
-        sys.exit(1)
+@app.route('/package', methods=['POST'])
+def create_package(token):
+    url = ""
+    ##############
+    # query package in database before anything else
+    package_query = ""
+    query_response = ""
+    rating = 0
+    id = 0
+    if query_response == None:
+        # add the following to the database
+        # metadata: name, version, id
+        # data: content (and maybe JSProgram?)
+        ######################################
+        # rating = x
+        if rating >= 0.5:
+            for header in request.headers:
+                if header == 'URL':
+                    git.clone(request.args.get('URL'))
+                    break
+                if header == 'Content':
+                    package_contents = decode_base_64(request.args.get('Content'))
+                    url = package_contents['homepage']
+                    git.clone(url)
 
+            if len(ids) > 0:
+                id = ids[len(ids) - 1] + 1
+                # write id and name to database
+        return id, "Success. Check the ID in the returned metadata for the official ID.", 201
+    elif query_response != None:
+        return "-1", "Package exists already.", 409
 
-    headers = {
-        "Authorization": "Bearer " + os.environ.get("GITHUB_TOKEN")
-    }
-    license_name =  ""
-    open('src/license.txt','w').close()
-    for url in urls:
-        if "github.com" in url:
-            # get data from api.github.com/repo/ using request
-            owner = url.split("/")[3]
-            repo = url.split("/")[4]
+    # query directory for package id
+    # if it exists return error else create package
 
-            # get the license name
-            # use environment variable to get the token from the user GITHUB_TOKEN and use that token to make the request
-            request_url = "https://api.github.com/repos/" + owner + "/" + repo
-            response = requests.get(request_url, headers=headers)
-            data = response.json()
-            if ("license" not in data.keys()):
-                license_name = "None"
-            else:
-                if (data['license'] == None):
-                    license_name = "None"
-                else:
-                    # print(data)
-                    license_name = data["license"]["name"]
-            
-        elif "npmjs.com" in url:
-            repo = url.split("/")[4]
-            request_url = "https://replicate.npmjs.com/" + repo
-            response = requests.get(request_url)
-            # Extract Data from the URL
-            data = response.json()
-            npmjs_urls = data['repository']['url']
-            npmjs_urls = npmjs_urls.split('//')
-            # This to remove "@" symbol from the
-            npmjs_urls = npmjs_urls[1].split('@')
-            if (len(npmjs_urls) > 1):
-                npmjs_urls = npmjs_urls[1]
-            if (type(npmjs_urls) == list):
-                npmjs_urls = npmjs_urls[0]
-            npmjs_urls = npmjs_urls.replace('.git', '')
-            request_url = "https://api.github.com/repos/" + owner + "/" + repo
-            response = requests.get(request_url, headers=headers)
-            data = response.json()
-            if ("license" not in data.keys()):
-                license_name = "None"
-            else:
-                if (data['license'] == "None"):
-                    license_name = "None"
-                else:
-                    license_name = data["license"]["name"]
-
-            # with open('src/license.txt', 'a+') as f:
-            #     f.write(license_name)
-            #     f.write('\n')
-        else:
-            print(f"Invalid URL:")
-            print(url)
-            sys.exit(1)           
-
-        with open('src/license.txt', 'a+') as f:
-            f.write(license_name)
-            f.write('\n')
-        # print(license_name)
-
-
-def ramp_Up():
-    # Clone the repository
-    import git
-    if (os.path.exists("Useless")):
-        os.system("rm -rf Useless")
-
-    os.system("mkdir Useless")
-    repo = git.Repo.clone_from(
-        "https://github.com/aaradhyajajoo/ECE_461.git", "./Useless")
-    repo.remote().pull()
-
-    i = 0
-    for commit in repo.iter_commits():  # iter_commits starts from the latest commit
-        first_commit = commit
-        i += 1
-
-    current_commit = repo.commit()
-
-    start_time = int(first_commit.committed_datetime.timestamp())
-    end_time = int(current_commit.committed_datetime.timestamp())
-
-    # Calculate the ramp-up time
-    ramp_up_time = end_time - start_time
-    total_time = time.time() - start_time
-    normalized_ramp_up_time = ramp_up_time / total_time
-
-    with open('src/ramp_up.txt', 'w') as f:
-        f.write(str(round(normalized_ramp_up_time, 2)))
-
-    # os.system("rm -rf Useless/.git/objects/pack/")
-    # os.system("rm -rf Useless")
-
-# install function
-
-
-def install():
-    os.system("npm --silent --no-progress install")
-    os.system("npm --silent --no-progress install typescript")
-    os.system("npm --silent --no-progress install ts-node")
-    os.system("npm --silent --no-progress install ts-node-dev")
-    os.system("npm --silent --no-progress install --save-dev jest")
-    os.system("pip install -q -r requirements.txt > /dev/null 2>&1")
-    # os.system("ts-node src/install.ts > /dev/null 2>&1")
-    os.system("tsc src/install.ts")
-    os.system("node src/install.js")
-    sys.exit(0)
-
-
-def main(args, *kwargs):
-
-    # no arguments provided
-    if (len(args) == 0):
-        print("No arguments provided")
-        sys.exit("1")
-
-    # check if the first argument is install or test
-    if (args[0].strip() == "install"):
-        install()
-
-    elif (args[0].strip() == "test"):
-
-
-        # for non existant file test
-        os.system('./run file_DNE > DNE_OUTPUT')
-
-        # for bad url test
-        os.system('echo "youtube.com" > invalid_file')
-        os.system('./run invalid_file > OUTPUT')
-        os.system('./run sample_url_file.txt > OUTPUT2')
-        # for duplicate test
-        os.system('cat sample_url_file.txt > CONC')
-        os.system('cat sample_url_file.txt >> CONC')
-        os.system('./run sample_url_file.txt > OUTPUT3')
-
-        time.sleep(10)
-
-        # runs unit test
-        os.system("python3 -m pytest run_test.py --tb=no --cov > PYTEST_RESULTS")
-        with open('PYTEST_RESULTS', 'r') as file:
-            test_string = file.read().replace('\n', '')
-
-        import regex as re
-
-        # interprets results of unit tests
-        results = re.search(r"(\d+) failed", test_string)
-        num_fail = 0 if results == None else int(results.group(1))
-        results = re.search(r"(\d+) passed", test_string)
-        num_pass = 0 if results == None else int(results.group(1))
-        print(f"Total: {num_fail + num_pass}")
-        print(f"Passed: {num_pass}")
-        results = re.findall(r"\d+%", test_string)
-        print(f"Coverage: {results[-1]}")
-        print(
-            f'{num_pass}/{num_fail + num_pass} test cases passed. {results[-1]} line coverage achieved.')
-        
-        os.system('rm OUTPUT')
-        os.system('rm OUTPUT2')
-        os.system('rm OUTPUT3')
-        os.system('rm CONC')
-        os.system('rm DNE_OUTPUT')
-        sys.exit(0)
-
-    # default test: check if the files exist
+    # else
+    # rate package
     else:
-        check_files_exists(args, *kwargs)
-        ramp_Up()
-        license_name(args[0].strip())
-        # os.system(f"ts-node src/graph_api_call.ts {args[0]}")
-        os.system(f"tsc src/graph_api_call.ts")
-        os.system(f"node src/graph_api_call.js {args[0]}")
+        return "-1", "Package is not uploaded due to the disqualified rating.", 424
 
-        if (not os.path.exists('results.txt')):
-            sys.exit(1)
+@app.route('/package/byName/{name}', methods=['GET', 'DELETE'])
+def get_history_of_package(token):
+    name = request.args.get('name')
+    query = ""
+    query_response = ""
+    history = ""
+    if query_response == "":
+        return query_response, 200
+    elif name == None or token == None:
+        # also check if token is invalid
+        return "There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.", 400
+    elif query_response == "":
+        return "No such package", 404
+    else:
+        return "unexpected error", 500
+def delete_package(token):
+    # use query commands to delete package
+    # check return statement of query
+    name = request.args.get('name')
+    query = ""
+    query_response = ""
+    if query_response == "":
+        return "Package is deleted", 200
+    elif name == None or token == None:
+        # also check if token is invalid
+        return "There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.", 400
+    if query_response == "":
+        return "Package does not exist", 404
+    return
 
-        # Printing Ordered List of URLs
-        with open('results.txt', 'r') as file:
-            results = eval(file.read())
-            sorted_results = dict(
-                sorted(results.items(), key=lambda item: float(item[0]), reverse=True))
-            for key, value in sorted_results.items():
-                repo_URL = value[0]
-                net_score = key
-                ramp_upTime = value[1]
-                correctness = value[2]
-                bus_factor = value[3]
-                responsiveness = value[4]
-                license_compatibility = value[5]
-                print("{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + str(net_score) + ", \"RAMP_UP_SCORE\":" + str(ramp_upTime) + ", \"CORRECTNESS_SCORE\":" + str(correctness) +
-                      ", \"BUS_FACTOR_SCORE\":" + str(bus_factor) + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + str(responsiveness) + ", \"LICENSE_SCORE\":" + str(license_compatibility) + "}")
+@app.route('/package/{id}', methods=['GET', 'DELETE', 'PUT'])
+def get_package_by_ID():
+    ident = request.args.get('id')
 
-        os.system('rm results.txt')
-        sys.exit(0)
+    return
 
-# check if the files with the input path exist
+def delete_package_by_ID(token):
+    ident = request.args.get('id')
+    if ident not in ids:
+        return "Package does not exist", 404
+    query = ""
+    query_response = ""
+    if query_response == "":
+        return "Package is deleted", 200
+    elif ident is None or token is None:
+        # also check if token is invalid
+        return "There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.", 400
+    if query_response == "":
+        return "Package does not exist", 404
+    return
 
+def update_package():
+    ident = request.args.get('id')
+    query = ""
+    query_respone = ""
+    # git clone <url> -b <version>
+    # clone, cd, checkout
+    if query_respone == "":
+        # delete package from database
+        for header in request.headers:
+            if header == 'URL':
+                git.clone(request.args.get('URL'))
+                break
+            if header == 'Content':
+                package_contents = decode_base_64(request.args.get('Content'))
+                url = package_contents['homepage']
+                git.clone(url)
 
-def check_files_exists(args):
+            git.checkout('b', request.args.get('Version'))
+        return "Version is updated", 200
+    # return "There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.", 400
+    # return "Package does not exist", 404
+    # return
 
-    # no files provided
-    if (len(args) == 0):
-        sys.exit("No files provided")
+@app.route('/package/{id}/rate', methods=['GET'])
+def rate_package():
+    ident = request.args.get('id')
+    score = -1
+    # query backend
+    # add package to database
+    return score
 
-    # check if the files exist
-    for arg in args:
-        arg = arg.strip()
-        if not os.path.exists(arg):
-            print(f"File {arg} does not exist")
-            sys.exit(1)
-        else:
-            continue
+@app.route('/packages', methods=['POST'])
+def get_ID_packages():
+    offset = request.args.get('offset')
+    if offset == None:
+        # print first page of entries
+        return
+    if offset != None:
+        # print offset num entries
+        return
+    return
 
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    print("begin test")
 
-if __name__ == "__main__":
-    main(sys.argv[1:])
+# See PyCharm help at https://www.jetbrains.com/help/pycharm/
