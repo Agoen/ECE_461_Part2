@@ -1,13 +1,12 @@
 import requests
+import os
 
-# Authentication token (replace with your own token)
-token = "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"
+token = os.environ.get("GITHUB_TOKEN")
 
 def code_review_ratio(owner, repo):
     reviewed_lines = 0
     total_lines = 0
     api_url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
-    print(api_url)
 
     response = requests.get(api_url, auth=("token", token))
     pull_requests = response.json()
@@ -31,9 +30,9 @@ def code_review_ratio(owner, repo):
 
     if total_lines > 0:
         fraction_reviewed = reviewed_lines / total_lines
-        print(f"Fraction of code introduced through pull requests with a code review: {fraction_reviewed}")
+        return fraction_reviewed
     else:
-        print("No pull requests found.")
+        return 0
 
 def pinned_dependency_ratio(dependencies, target_version):
     pinned_count = 0
