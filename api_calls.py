@@ -266,6 +266,19 @@ def rate():
     return render_template('webpage.html', data_url=url, net_score=net_score, ramp_up=ramp_up, correctness=correctness
                            ,bus_factor=bus_factor, responsive_maintainer=responsiveness, license=license_score)
 
+def list_blobs(bucket_name):
+    """Lists all the blobs in the bucket."""
+    # bucket_name = "your-bucket-name"
+
+    storage_client = storage.Client()
+
+    # Note: Client.list_blobs requires at least package version 1.17.0.
+    blobs = storage_client.list_blobs(bucket_name)
+
+    # Note: The call returns a response only when the iterator is consumed.
+    for blob in blobs:
+        print(blob.name)
+        
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print("begin test")
