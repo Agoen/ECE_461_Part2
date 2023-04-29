@@ -236,7 +236,6 @@ def get_ID_packages():
 
 @app.route("/submit")
 def submit():
-    # url = request.form.get("url")
     with open('url_cache.txt', 'a') as f:
         open("url_cache.txt", "w").close()
         url = request.args.get('url')
