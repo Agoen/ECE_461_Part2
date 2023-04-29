@@ -187,11 +187,35 @@ def update_package():
     # return "There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.", 400
     # return "Package does not exist", 404
     # return
+def rate():
+    output = subprocess.getoutput("./run url_cache.txt")
+    try:
+        # Get the json output of backend and set variables
+        output = json.loads(output)
+        url = output["URL"]
+        net_score = output["NET_SCORE"]
+        ramp_up = output["RAMP_UP_SCORE"]
+        correctness = output["CORRECTNESS_SCORE"]
+        bus_factor = output["BUS_FACTOR_SCORE"]
+        responsiveness = output["RESPONSIVE_MAINTAINER_SCORE"]
+        license_score = output["LICENSE_SCORE"]
+    except:
+        # If error, throw invalid error
+        url = "Invalid URL"
+        net_score = "N/A"
+        ramp_up = "N/A"
+        correctness = "N/A"
+        bus_factor = "N/A"
+        responsiveness = "N/A"
+        license_score = "N/A"
+    
+    # Return metrics to html, while reloading page
+    return render_template('webpage.html', data_url=url, net_score=net_score, ramp_up=ramp_up, correctness=correctness
+                           ,bus_factor=bus_factor, responsive_maintainer=responsiveness, license=license_score)
 
 @app.route('/package/{id}/rate', methods=['GET'])
 def rate_package():
     ident = request.args.get('id')
-    print(ident)
     score = -1
     # query backend
     # add package to database
@@ -244,32 +268,7 @@ def submit():
     return ('', 204)
     
 # flask api call for running rating functionality
-@app.route("/rate", methods=['GET'])
-def rate():
-    output = subprocess.getoutput("./run url_cache.txt")
-    try:
-        # Get the json output of backend and set variables
-        output = json.loads(output)
-        url = output["URL"]
-        net_score = output["NET_SCORE"]
-        ramp_up = output["RAMP_UP_SCORE"]
-        correctness = output["CORRECTNESS_SCORE"]
-        bus_factor = output["BUS_FACTOR_SCORE"]
-        responsiveness = output["RESPONSIVE_MAINTAINER_SCORE"]
-        license_score = output["LICENSE_SCORE"]
-    except:
-        # If error, throw invalid error
-        url = "Invalid URL"
-        net_score = "N/A"
-        ramp_up = "N/A"
-        correctness = "N/A"
-        bus_factor = "N/A"
-        responsiveness = "N/A"
-        license_score = "N/A"
-    
-    # Return metrics to html, while reloading page
-    return render_template('webpage.html', data_url=url, net_score=net_score, ramp_up=ramp_up, correctness=correctness
-                           ,bus_factor=bus_factor, responsive_maintainer=responsiveness, license=license_score)
+
 
 def list_blobs(bucket_name):
     """Lists all the blobs in the bucket."""
