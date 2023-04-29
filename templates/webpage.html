@@ -15,17 +15,20 @@
                 <input id="url" type="text" placeholder="Input Package Here" name="url">
                 <button id="submit-button" class="submit-button" type="submit">Submit</button>
             </form>
-            <button class="update-button">Update</button>
-            <button class="upload-button">Upload</button>
-            <form action="/package/<%=url%>/rate">
+            <form action="/package/{id}" method="PUT">
+                <button class="update-button">Update</button>
+            </form>
+            <form action="/package">
+                <button class="upload-button">Upload</button>
+            </form>
+            <form action="/package/{id}/rate">
                 <button id="rate-button" class="rate-button">Rate</button>
             </form>
-                <button class="download-button">Download</button>
             <form action="/reset">
                 <button class="download-button">Clear</button>
             </form>
             <b>URL to rate (most recent):</b>
-            <p id="id" class="urls">{{ data_url }}</p>
+            <p id="url" class="urls">{{ data_url }}</p>
 
                 <!-- code for displaying whatever urls that the user wants to do functions on -->
                 <script>
