@@ -69,7 +69,7 @@ def create_package(token):
                     package_contents = decode_base_64(request.args.get('Content'))
                     url = package_contents['homepage']
                     gitpy.clone(url)
-                    request.args.get('URL')
+                    name = getName(url)
                     break
 
             if len(ids) > 0:
@@ -196,16 +196,43 @@ def rate_package():
     # add package to database
     return score
 
+@app.route('/reset', methods=['DELETE'])
+def reset():
+    storage_client = storage.Client()
+    bucket = storage_client.bucket('package_storage')
+    # blob name your_bucket_name/path_in_gcs
+    blob = bucket.blob('')
+    with blob.open('w') as file:
+        file.truncate()
+    return "Registry is reset", 200
+
 @app.route('/packages', methods=['POST'])
 def get_ID_packages():
     offset = request.args.get('offset')
-    if offset == None:
+    packages = []
+    if offset is None:
         # print first page of entries
-        return
-    if offset != None:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket('package_storage')
+        # blob name your_bucket_name/path_in_gcs
+        blob = bucket.blob('')
+        with blob.open('r') as file:
+            lines = file.readlines
+        return lines[0:min(len(lines), 20)], 200
+    elif offset is not None:
         # print offset num entries
-        return
-    return
+        storage_client = storage.Client()
+        bucket = storage_client.bucket('package_storage')
+        # blob name your_bucket_name/path_in_gcs
+        blob = bucket.blob('')
+        with blob.open('r') as file:
+            lines = file.readlines
+        if offset > len(lines):
+            return "Too many packages returned.", 413
+        return lines[0:offset], 200
+
+    return "unexpected error", 413
+
 
 @app.route("/submit")
 def submit():
