@@ -1,7 +1,6 @@
 from flask import Flask, render_template
 from flask import request
 import subprocess
-import gitpy
 import base64
 import git
 import json
@@ -23,7 +22,7 @@ def list_blobs(bucket_name):
     # Note: The call returns a response only when the iterator is consumed.
     for blob in blobs:
         print(blob.name)
-        
+
 def rate():
     output = subprocess.getoutput("./run url_cache.txt")
     try:
@@ -83,7 +82,7 @@ def bucket_init():
 
 @app.route('/')
 def index():
-    return render_template('webpage.html')
+    return render_template(template_name_or_list='webpage.html')
 
 @app.route('/package', methods=['POST'])
 def create_package():
@@ -95,7 +94,9 @@ def create_package():
     rating = 0
     id = 0
     name = ""
-    # add the following to the database
+    # add the foll
+    #
+    # owing to the database
     # metadata: name, version, id
     # data: content (and maybe JSProgram?)
     ######################################
@@ -104,13 +105,13 @@ def create_package():
     for header in request.headers:
         if header == 'URL':
             url = request.args.get('URL')
-            gitpy.clone(url)
+            git.Repo.clone_from(url)
             name = getName(url)
             break
         if header == 'Content':
             package_contents = decode_base_64(request.args.get('Content'))
             url = package_contents['homepage']
-            gitpy.clone(url)
+            git.Repo.clone_from(url)
             name = getName(url)
             break
 
@@ -120,9 +121,9 @@ def create_package():
             id = ids[len(ids) - 1] + 1
             # write id and name to database
         storage_client = storage.Client()
-        bucket = storage_client.bucket('project-part2-package-storage')  # updated bucket name
+        bucket = storage_client.bucket('autonomous-time-309221')  # updated bucket name
         # blob name your_bucket_name/path_in_gcs
-        blob = bucket.blob('')
+        blob = bucket.blob('packages')
         with blob.open('r') as file:
             if name in file.readlines():
                 return "-1", "Package exists already.", 409
@@ -148,9 +149,9 @@ def delete_package():
 
     query_response = 0
     storage_client = storage.Client()
-    bucket = storage_client.bucket('project-part2-package-storage')
+    bucket = storage_client.bucket('autonomous-time-309221')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('')
+    blob = bucket.blob('packages')
     with blob.open('r') as file:
         lines = file.readlines()
     with blob.open('w') as file:
@@ -172,9 +173,9 @@ def delete_package():
 def get_package_by_ID():
     ident = request.args.get('id')
     storage_client = storage.Client()
-    bucket = storage_client.bucket('project-part2-package-storage')
+    bucket = storage_client.bucket('autonomous-time-309221')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('')
+    blob = bucket.blob('packages')
     with blob.open('r') as file:
         lines = file.readlines()
         for line in lines:
@@ -187,9 +188,9 @@ def delete_package_by_ID():
     query_response = 0
     ident = request.args.get('id')
     storage_client = storage.Client()
-    bucket = storage_client.bucket('project-part2-package-storage')
+    bucket = storage_client.bucket('autonomous-time-309221')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('')
+    blob = bucket.blob('packages')
     with blob.open('r') as file:
         lines = file.readlines()
     with blob.open('w') as file:
@@ -237,9 +238,6 @@ def update_package():
     # return
 
 
-
-
-
 @app.route('/package/{id}/rate', methods=['GET'])
 def rate_package():
     ident = request.args.get('id')
@@ -252,9 +250,9 @@ def rate_package():
 @app.route('/reset', methods=['DELETE'])
 def reset():
     storage_client = storage.Client()
-    bucket = storage_client.bucket('project-part2-package-storage')
+    bucket = storage_client.bucket('autonomous-time-309221')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('')
+    blob = bucket.blob('packages')
     with blob.open('w') as file:
         file.truncate()
     return "Registry is reset", 200
@@ -267,18 +265,18 @@ def get_ID_packages():
     if offset is None:
         # print first page of entries
         storage_client = storage.Client()
-        bucket = storage_client.bucket('project-part2-package-storage')
+        bucket = storage_client.bucket('autonomous-time-309221')
         # blob name your_bucket_name/path_in_gcs
-        blob = bucket.blob('')
+        blob = bucket.blob('packages')
         with blob.open('r') as file:
             lines = file.readlines
         return lines[0:min(len(lines), 20)], 200
     elif offset is not None:
         # print offset num entries
         storage_client = storage.Client()
-        bucket = storage_client.bucket('project-part2-package-storage')
+        bucket = storage_client.bucket('autonomous-time-309221')
         # blob name your_bucket_name/path_in_gcs
-        blob = bucket.blob('')
+        blob = bucket.blob('packages')
         with blob.open('r') as file:
             lines = file.readlines
         if offset > len(lines):
