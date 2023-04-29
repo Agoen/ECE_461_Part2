@@ -34,3 +34,15 @@ def code_review_ratio(owner, repo):
         print(f"Fraction of code introduced through pull requests with a code review: {fraction_reviewed}")
     else:
         print("No pull requests found.")
+
+def pinned_dependency_ratio(dependencies, target_version):
+    pinned_count = 0
+    for dep in dependencies:
+        if target_version in dep and "==" in dep:
+            pinned_count += 1
+    total_count = len(dependencies)
+    if total_count == 0:
+        return 1.0
+    else:
+        return float(pinned_count) / total_count
+        
