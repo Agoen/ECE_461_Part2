@@ -1,4 +1,4 @@
-from flask import Flask,render_template
+from flask import Flask, render_template
 from flask import request
 import subprocess
 import gitpy
@@ -7,24 +7,27 @@ import git
 import json
 from google.cloud import storage
 
-
 app = Flask(__name__)
 
 ids = []
 
+
 @app.route('/')
 def index():
-  return render_template('webpage.html')
+    return render_template('webpage.html')
+
 
 def encode_base_64(message):
     message_in_bytes = message.encode('ascii')
     message_in_base_64 = base64.b64encode(message_in_bytes)
-    return  message_in_base_64
+    return message_in_base_64
+
 
 def decode_base_64(message_in_base_64):
     message_in_bytes = message_in_base_64.encode('ascii')
     message = base64.b64decode(message_in_bytes)
     return message
+
 
 def getName(url):
     slash_count = 0
@@ -37,13 +40,15 @@ def getName(url):
             break
     return url[index:]
 
+
 def bucket_init():
     storage_client = storage.Client()
     bucket_name = "package_storage"
     bucket = storage_client.create_bucket(bucket_name)
 
+
 @app.route('/package', methods=['POST'])
-def create_package(token):
+def create_package():
     url = ""
     ##############
     # query package in database before anything else
@@ -52,30 +57,32 @@ def create_package(token):
     rating = 0
     id = 0
     name = ""
-        # add the following to the database
-        # metadata: name, version, id
-        # data: content (and maybe JSProgram?)
-        ######################################
-        # rating = x
-    if rating >= 0.5:
-        for header in request.headers:
-            if header == 'URL':
-                url = request.args.get('URL')
-                gitpy.clone(url)
-                name = getName(url)
-                break
-            if header == 'Content':
-                package_contents = decode_base_64(request.args.get('Content'))
-                url = package_contents['homepage']
-                gitpy.clone(url)
-                name = getName(url)
-                break
+    # add the following to the database
+    # metadata: name, version, id
+    # data: content (and maybe JSProgram?)
+    ######################################
+    # rating = x
 
+    for header in request.headers:
+        if header == 'URL':
+            url = request.args.get('URL')
+            gitpy.clone(url)
+            name = getName(url)
+            break
+        if header == 'Content':
+            package_contents = decode_base_64(request.args.get('Content'))
+            url = package_contents['homepage']
+            gitpy.clone(url)
+            name = getName(url)
+            break
+
+    # call main.py here
+    if rating >= 0.5:
         if len(ids) > 0:
             id = ids[len(ids) - 1] + 1
             # write id and name to database
         storage_client = storage.Client()
-        bucket = storage_client.bucket('project-part2-package-storage') #updated bucket name
+        bucket = storage_client.bucket('project-part2-package-storage')  # updated bucket name
         # blob name your_bucket_name/path_in_gcs
         blob = bucket.blob('')
         with blob.open('r') as file:
@@ -93,8 +100,9 @@ def create_package(token):
     else:
         return "-1", "Package is not uploaded due to the disqualified rating.", 424
 
+
 @app.route('/package/byName/{name}', methods=['DELETE'])
-def delete_package(token):
+def delete_package():
     # use query commands to delete package
     # check return statement of query
     name = request.args.get('name')
@@ -102,7 +110,7 @@ def delete_package(token):
 
     query_response = 0
     storage_client = storage.Client()
-    bucket = storage_client.bucket('package_storage')
+    bucket = storage_client.bucket('project-part2-package-storage')
     # blob name your_bucket_name/path_in_gcs
     blob = bucket.blob('')
     with blob.open('r') as file:
@@ -121,11 +129,12 @@ def delete_package(token):
         return "Package does not exist", 404
     return
 
+
 @app.route('/package/{id}', methods=['GET', 'DELETE', 'PUT'])
 def get_package_by_ID():
     ident = request.args.get('id')
     storage_client = storage.Client()
-    bucket = storage_client.bucket('package_storage')
+    bucket = storage_client.bucket('project-part2-package-storage')
     # blob name your_bucket_name/path_in_gcs
     blob = bucket.blob('')
     with blob.open('r') as file:
@@ -135,11 +144,12 @@ def get_package_by_ID():
                 return line
     return 404, "Package does not exist"
 
-def delete_package_by_ID(token):
+
+def delete_package_by_ID():
     query_response = 0
     ident = request.args.get('id')
     storage_client = storage.Client()
-    bucket = storage_client.bucket('package_storage')
+    bucket = storage_client.bucket('project-part2-package-storage')
     # blob name your_bucket_name/path_in_gcs
     blob = bucket.blob('')
     with blob.open('r') as file:
@@ -159,6 +169,7 @@ def delete_package_by_ID(token):
         return "Package does not exist", 404
     return
 
+
 def update_package():
     ident = request.args.get('id')
     query = ""
@@ -172,7 +183,7 @@ def update_package():
                 repo = git.Repo.clone_from(request.args.get('URL'))
                 repo.git.checkout('b', request.args.get('Version'))
                 # write back to database
-                #gitpy.clone(request.args.get('URL'))
+                # gitpy.clone(request.args.get('URL'))
                 break
             if header == 'Content':
                 package_contents = decode_base_64(request.args.get('Content'))
@@ -182,11 +193,12 @@ def update_package():
                 # write back to database
                 break
 
-
         return "Version is updated", 200
     # return "There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.", 400
     # return "Package does not exist", 404
     # return
+
+
 def rate():
     output = subprocess.getoutput("./run url_cache.txt")
     try:
@@ -208,10 +220,11 @@ def rate():
         bus_factor = "N/A"
         responsiveness = "N/A"
         license_score = "N/A"
-    
+
     # Return metrics to html, while reloading page
     return render_template('webpage.html', data_url=url, net_score=net_score, ramp_up=ramp_up, correctness=correctness
-                           ,bus_factor=bus_factor, responsive_maintainer=responsiveness, license=license_score)
+                           , bus_factor=bus_factor, responsive_maintainer=responsiveness, license=license_score)
+
 
 @app.route('/package/{id}/rate', methods=['GET'])
 def rate_package():
@@ -221,15 +234,17 @@ def rate_package():
     # add package to database
     return score
 
+
 @app.route('/reset', methods=['DELETE'])
 def reset():
     storage_client = storage.Client()
-    bucket = storage_client.bucket('package_storage')
+    bucket = storage_client.bucket('project-part2-package-storage')
     # blob name your_bucket_name/path_in_gcs
     blob = bucket.blob('')
     with blob.open('w') as file:
         file.truncate()
     return "Registry is reset", 200
+
 
 @app.route('/packages', methods=['POST'])
 def get_ID_packages():
@@ -238,7 +253,7 @@ def get_ID_packages():
     if offset is None:
         # print first page of entries
         storage_client = storage.Client()
-        bucket = storage_client.bucket('package_storage')
+        bucket = storage_client.bucket('project-part2-package-storage')
         # blob name your_bucket_name/path_in_gcs
         blob = bucket.blob('')
         with blob.open('r') as file:
@@ -247,7 +262,7 @@ def get_ID_packages():
     elif offset is not None:
         # print offset num entries
         storage_client = storage.Client()
-        bucket = storage_client.bucket('package_storage')
+        bucket = storage_client.bucket('project-part2-package-storage')
         # blob name your_bucket_name/path_in_gcs
         blob = bucket.blob('')
         with blob.open('r') as file:
@@ -258,6 +273,7 @@ def get_ID_packages():
 
     return "unexpected error", 413
 
+
 # add url to rate to url_cache.txt
 @app.route("/submit")
 def submit():
@@ -266,7 +282,8 @@ def submit():
         url = request.args.get('url')
         f.write(url)
     return ('', 204)
-    
+
+
 # flask api call for running rating functionality
 
 
