@@ -1,14 +1,20 @@
-from flask import Flask
+from flask import Flask,render_template
 from flask import request
+import subprocess
 import gitpy
 import base64
 import git
+import json
 from google.cloud import storage
 
 
 app = Flask(__name__)
 
 ids = []
+
+@app.route('/')
+def index():
+  return render_template('webpage.html')
 
 def encode_base_64(message):
     message_in_bytes = message.encode('ascii')
@@ -201,8 +207,42 @@ def get_ID_packages():
         return
     return
 
+@app.route("/submit")
+def submit():
+    # url = request.form.get("url")
+    with open('url_cache.txt', 'a') as f:
+        open("url_cache.txt", "w").close()
+        url = request.args.get('url')
+        f.write(url)
+    return ('', 204)
+    
+@app.route("/rate", methods=['GET'])
+def rate():
+    output = subprocess.getoutput("./run url_cache.txt")
+    try:
+        output = json.loads(output)
+        url = output["URL"]
+        net_score = output["NET_SCORE"]
+        ramp_up = output["RAMP_UP_SCORE"]
+        correctness = output["CORRECTNESS_SCORE"]
+        bus_factor = output["BUS_FACTOR_SCORE"]
+        responsiveness = output["RESPONSIVE_MAINTAINER_SCORE"]
+        license_score = output["LICENSE_SCORE"]
+    except:
+        url = "Invalid URL"
+        net_score = "N/A"
+        ramp_up = "N/A"
+        correctness = "N/A"
+        bus_factor = "N/A"
+        responsiveness = "N/A"
+        license_score = "N/A"
+    
+    return render_template('webpage.html', data_url=url, net_score=net_score, ramp_up=ramp_up, correctness=correctness
+                           ,bus_factor=bus_factor, responsive_maintainer=responsiveness, license=license_score)
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print("begin test")
+    app.run(debug=True, use_reloader=False)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

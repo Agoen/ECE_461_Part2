@@ -3,9 +3,10 @@
     <head>
         <meta name = 'viewport' content="width=device-width, initial-scale=1.0">
         <title>Package Search</title>
-        <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-        <link rel="stylesheet" href="style.css">
-        <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
+        <!-- <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" /> -->
+        <!-- <link rel="stylesheet" href="style.css"> -->
+        <!-- <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script> -->
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
     </head>
 <body>
     <div class="header">
@@ -13,27 +14,25 @@
     </div>
     <div class="container">
         <div class="sub-container">
-            <form action="" class="package-search">
+            <form action="/submit" class="package-search">
                 <input id="url" type="text" placeholder="Input Package Here" name="url">
-                <button id="submit-button" class="submit-button" type="button">Submit</button>
+                <button id="submit-button" class="submit-button" type="submit">Submit</button>
             </form>
             <button class="update-button">Update</button>
             <button class="upload-button">Upload</button>
-            <form action="/rate" method="POST">
+            <form action="/rate">
                 <button id="rate-button" class="rate-button">Rate</button>
             </form>
             <button class="download-button">Download</button>
             <button class="download-button">Clear</button>
             <b>URLs:</b>
-            <p id="urls">
+            <p id="urls"></p>
 
                 <!-- code for displaying whatever urls that the user wants to do functions on -->
                 <script>
-                    const rate_button = document.getElementById("rate-button");
                     const button = document.getElementById("submit-button");
                     button.addEventListener("click", addURL);
                     button.addEventListener("click", displayURLs);
-                    rate_button.addEventListener("click", displayRatings)
 
                     let url;
 
@@ -45,10 +44,6 @@
                     function displayURLs(){
                         document.getElementById("urls").innerHTML = url;
                     }
-
-                    function displayRatings(){
-                        document.getElementById("score-list").innerHTML = url;
-                    }
                 </script>
 
 
@@ -56,7 +51,14 @@
         <div class="display-results">
             <div class="table">
                 <h2><center>Rating Of Package</center></h2>
-                    <ul id="score-list">
+                    <ul>
+                        <li>URL: {{data_url}}</li>
+                        <li>Net: {{net_score}}</li>
+                        <li>Ramp Up: {{ramp_up}}</li>
+                        <li>Correctness: {{correctness}}</li>
+                        <li>Bus Factor: {{bus_factor}}</li>
+                        <li>Responsive Maintainer: {{responsive_maintainer}}</li>
+                        <li>License: {{license}}</li>
                     </ul>
             </div>
         </div>
