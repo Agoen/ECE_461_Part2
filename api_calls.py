@@ -75,7 +75,7 @@ def create_package(token):
             id = ids[len(ids) - 1] + 1
             # write id and name to database
         storage_client = storage.Client()
-        bucket = storage_client.bucket('package_storage')
+        bucket = storage_client.bucket('project-part2-package-storage') #updated bucket name
         # blob name your_bucket_name/path_in_gcs
         blob = bucket.blob('')
         with blob.open('r') as file:
@@ -278,7 +278,8 @@ def list_blobs(bucket_name):
     # Note: The call returns a response only when the iterator is consumed.
     for blob in blobs:
         print(blob.name)
-        
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print("begin test")
