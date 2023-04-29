@@ -222,6 +222,7 @@ def main(args, *kwargs):
                       ", \"BUS_FACTOR_SCORE\":" + str(bus_factor) + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + str(responsiveness) + ", \"LICENSE_SCORE\":" + str(license_compatibility) + "}")
 
         os.system('rm results.txt')
+        return net_score
         sys.exit(0)
 
 # check if the files with the input path exist
