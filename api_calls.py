@@ -74,15 +74,15 @@ def create_package(token):
         if len(ids) > 0:
             id = ids[len(ids) - 1] + 1
             # write id and name to database
-            storage_client = storage.Client()
-            bucket = storage_client.bucket('package_storage')
-            # blob name your_bucket_name/path_in_gcs
-            blob = bucket.blob('')
-            with blob.open('r') as file:
-                if name in file.readlines():
-                    return "-1", "Package exists already.", 409
-            with blob.open('w') as file:
-                file.write([id, name])
+        storage_client = storage.Client()
+        bucket = storage_client.bucket('package_storage')
+        # blob name your_bucket_name/path_in_gcs
+        blob = bucket.blob('')
+        with blob.open('r') as file:
+            if name in file.readlines():
+                return "-1", "Package exists already.", 409
+        with blob.open('w') as file:
+            file.write([id, name])
         return id, "Success. Check the ID in the returned metadata for the official ID.", 201
 
     # query directory for package id
