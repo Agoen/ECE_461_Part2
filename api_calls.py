@@ -102,7 +102,7 @@ def create_package():
     ######################################
     # rating = x
 
-    for header in request.headers:
+    for header in request.headers():
         if header == 'URL':
             url = request.args.get('URL')
             git.Repo.clone_from(url)
@@ -126,10 +126,10 @@ def create_package():
         blob = bucket.blob('packages')
         with blob.open('r') as file:
             if name in file.readlines():
-                return "-1", "Package exists already.", 409
+                return "Package exists already." + "409"
         with blob.open('w') as file:
             file.write([id, name])
-        return id, "Success. Check the ID in the returned metadata for the official ID.", 201
+        return str(id) +  "Success. Check the ID in the returned metadata for the official ID." + "201"
 
     # query directory for package id
     # if it exists return error else create package
@@ -137,7 +137,7 @@ def create_package():
     # else
     # rate package
     else:
-        return "-1", "Package is not uploaded due to the disqualified rating.", 424
+        return "-1", "Package is not uploaded due to the disqualified rating." + "424"
 
 
 @app.route('/package/byName/{name}', methods=['DELETE'])
@@ -244,7 +244,7 @@ def rate_package():
     score = -1
     # query backend
     # add package to database
-    return score
+    return rate()
 
 
 @app.route('/reset', methods=['DELETE'])
@@ -306,5 +306,5 @@ def submit():
 if __name__ == '__main__':
     print("begin test")
     app.run(debug=True, use_reloader=False, port=8001)
-
+    # host='10.128.0.2',
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
