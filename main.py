@@ -56,6 +56,10 @@ def license_name(file_name):
             npmjs_urls = npmjs_urls.split('//')
             # This to remove "@" symbol from the
             npmjs_urls = npmjs_urls[1].split('@')
+            if len(npmjs_urls) > 1:
+                owner = npmjs_urls[1].split('/')[0]
+            else:
+                owner = npmjs_urls[0].split('/')[1]
             if (len(npmjs_urls) > 1):
                 npmjs_urls = npmjs_urls[1]
             if (type(npmjs_urls) == list):

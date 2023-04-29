@@ -269,6 +269,6 @@ def rate():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print("begin test")
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=True, use_reloader=False, port=8001)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
