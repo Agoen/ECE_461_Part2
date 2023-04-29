@@ -11,10 +11,45 @@ app = Flask(__name__)
 
 ids = []
 
+def list_blobs(bucket_name):
+    """Lists all the blobs in the bucket."""
+    # bucket_name = "your-bucket-name"
 
-@app.route('/')
-def index():
-    return render_template('webpage.html')
+    storage_client = storage.Client()
+
+    # Note: Client.list_blobs requires at least package version 1.17.0.
+    blobs = storage_client.list_blobs(bucket_name)
+
+    # Note: The call returns a response only when the iterator is consumed.
+    for blob in blobs:
+        print(blob.name)
+        
+def rate():
+    output = subprocess.getoutput("./run url_cache.txt")
+    try:
+        # Get the json output of backend and set variables
+        output = json.loads(output)
+        url = output["URL"]
+        net_score = output["NET_SCORE"]
+        ramp_up = output["RAMP_UP_SCORE"]
+        correctness = output["CORRECTNESS_SCORE"]
+        bus_factor = output["BUS_FACTOR_SCORE"]
+        responsiveness = output["RESPONSIVE_MAINTAINER_SCORE"]
+        license_score = output["LICENSE_SCORE"]
+    except:
+        # If error, throw invalid error
+        url = "Invalid URL"
+        net_score = "N/A"
+        ramp_up = "N/A"
+        correctness = "N/A"
+        bus_factor = "N/A"
+        responsiveness = "N/A"
+        license_score = "N/A"
+
+    # Return metrics to html, while reloading page
+    return render_template('webpage.html', data_url=url, net_score=net_score, ramp_up=ramp_up, correctness=correctness
+                           , bus_factor=bus_factor, responsive_maintainer=responsiveness, license=license_score)
+
 
 
 def encode_base_64(message):
@@ -46,6 +81,9 @@ def bucket_init():
     bucket_name = "package_storage"
     bucket = storage_client.create_bucket(bucket_name)
 
+@app.route('/')
+def index():
+    return render_template('webpage.html')
 
 @app.route('/package', methods=['POST'])
 def create_package():
@@ -199,31 +237,7 @@ def update_package():
     # return
 
 
-def rate():
-    output = subprocess.getoutput("./run url_cache.txt")
-    try:
-        # Get the json output of backend and set variables
-        output = json.loads(output)
-        url = output["URL"]
-        net_score = output["NET_SCORE"]
-        ramp_up = output["RAMP_UP_SCORE"]
-        correctness = output["CORRECTNESS_SCORE"]
-        bus_factor = output["BUS_FACTOR_SCORE"]
-        responsiveness = output["RESPONSIVE_MAINTAINER_SCORE"]
-        license_score = output["LICENSE_SCORE"]
-    except:
-        # If error, throw invalid error
-        url = "Invalid URL"
-        net_score = "N/A"
-        ramp_up = "N/A"
-        correctness = "N/A"
-        bus_factor = "N/A"
-        responsiveness = "N/A"
-        license_score = "N/A"
 
-    # Return metrics to html, while reloading page
-    return render_template('webpage.html', data_url=url, net_score=net_score, ramp_up=ramp_up, correctness=correctness
-                           , bus_factor=bus_factor, responsive_maintainer=responsiveness, license=license_score)
 
 
 @app.route('/package/{id}/rate', methods=['GET'])
@@ -287,18 +301,7 @@ def submit():
 # flask api call for running rating functionality
 
 
-def list_blobs(bucket_name):
-    """Lists all the blobs in the bucket."""
-    # bucket_name = "your-bucket-name"
 
-    storage_client = storage.Client()
-
-    # Note: Client.list_blobs requires at least package version 1.17.0.
-    blobs = storage_client.list_blobs(bucket_name)
-
-    # Note: The call returns a response only when the iterator is consumed.
-    for blob in blobs:
-        print(blob.name)
 
 
 # Press the green button in the gutter to run the script.
