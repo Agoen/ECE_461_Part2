@@ -52,38 +52,38 @@ def create_package(token):
     rating = 0
     id = 0
     name = ""
-    if query_response == None:
         # add the following to the database
         # metadata: name, version, id
         # data: content (and maybe JSProgram?)
         ######################################
         # rating = x
-        if rating >= 0.5:
-            for header in request.headers:
-                if header == 'URL':
-                    url = request.args.get('URL')
-                    gitpy.clone(url)
-                    name = getName(url)
-                    break
-                if header == 'Content':
-                    package_contents = decode_base_64(request.args.get('Content'))
-                    url = package_contents['homepage']
-                    gitpy.clone(url)
-                    name = getName(url)
-                    break
+    if rating >= 0.5:
+        for header in request.headers:
+            if header == 'URL':
+                url = request.args.get('URL')
+                gitpy.clone(url)
+                name = getName(url)
+                break
+            if header == 'Content':
+                package_contents = decode_base_64(request.args.get('Content'))
+                url = package_contents['homepage']
+                gitpy.clone(url)
+                name = getName(url)
+                break
 
-            if len(ids) > 0:
-                id = ids[len(ids) - 1] + 1
-                # write id and name to database
-                storage_client = storage.Client()
-                bucket = storage_client.bucket('package_storage')
-                # blob name your_bucket_name/path_in_gcs
-                blob = bucket.blob('')
-                with blob.open('w') as file:
-                    file.write([id, name])
+        if len(ids) > 0:
+            id = ids[len(ids) - 1] + 1
+            # write id and name to database
+            storage_client = storage.Client()
+            bucket = storage_client.bucket('package_storage')
+            # blob name your_bucket_name/path_in_gcs
+            blob = bucket.blob('')
+            with blob.open('r') as file:
+                if name in file.readlines():
+                    return "-1", "Package exists already.", 409
+            with blob.open('w') as file:
+                file.write([id, name])
         return id, "Success. Check the ID in the returned metadata for the official ID.", 201
-    elif query_response != None:
-        return "-1", "Package exists already.", 409
 
     # query directory for package id
     # if it exists return error else create package
