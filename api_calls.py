@@ -117,7 +117,7 @@ def create_package():
         storage_client = storage.Client()
         bucket = storage_client.bucket('autonomous-time-309221.appspot.com')  # updated bucket name
         # blob name your_bucket_name/path_in_gcs
-        blob = bucket.blob('packages')
+        blob = bucket.blob('api_calls.py')
         with blob.open('r') as file:
             if name in file.readlines():
                 return "Package exists already." + "409"
@@ -145,7 +145,7 @@ def delete_package():
     storage_client = storage.Client()
     bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('packages')
+    blob = bucket.blob('api_calls.py')
     with blob.open('r') as file:
         lines = file.readlines()
     with blob.open('w') as file:
@@ -169,7 +169,8 @@ def get_package_by_ID():
     storage_client = storage.Client()
     bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('packages')
+    blob = bucket.blob('api_calls')
+    listBlobs()
     with blob.open('r') as file:
         lines = file.readlines()
         for line in lines:
@@ -184,7 +185,7 @@ def delete_package_by_ID():
     storage_client = storage.Client()
     bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('packages')
+    blob = bucket.blob('api_calls.py')
     with blob.open('r') as file:
         lines = file.readlines()
     with blob.open('w') as file:
@@ -226,7 +227,7 @@ def update_package():
                 # write back to database
                 break
 
-        return "Version is updated", 200
+        return "Version is d", 200
     # return "There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.", 400
     # return "Package does not exist", 404
     # return
@@ -246,7 +247,7 @@ def reset():
     storage_client = storage.Client()
     bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('packages')
+    blob = bucket.blob('api_calls.py')
     with blob.open('w') as file:
         file.truncate()
     return "Registry is reset", 200
@@ -261,7 +262,7 @@ def get_ID_packages():
         storage_client = storage.Client()
         bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
         # blob name your_bucket_name/path_in_gcs
-        blob = bucket.blob('packages')
+        blob = bucket.blob('api_calls.py')
         with blob.open('r') as file:
             lines = file.readlines
         return lines[0:min(len(lines), 20)], 200
@@ -270,7 +271,7 @@ def get_ID_packages():
         storage_client = storage.Client()
         bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
         # blob name your_bucket_name/path_in_gcs
-        blob = bucket.blob('packages')
+        blob = bucket.blob('api_calls.py')
         with blob.open('r') as file:
             lines = file.readlines
         if offset > len(lines):
@@ -293,7 +294,10 @@ def submit():
 # flask api call for running rating functionality
 
 
-
+def listBlobs():
+    client = storage.Client()
+    for blob in client.list_blobs('autonomous-time-309221.appspot.com', prefix='autonomous-time-309221.appspot.com/api_calls'):
+        print("\n\n"+str(blob)+"\n\n")
 
 
 # Press the green button in the gutter to run the script.
