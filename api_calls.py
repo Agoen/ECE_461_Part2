@@ -74,12 +74,6 @@ def getName(url):
             break
     return url[index:]
 
-
-def bucket_init():
-    storage_client = storage.Client()
-    bucket_name = "package_storage"
-    bucket = storage_client.create_bucket(bucket_name)
-
 @app.route('/')
 def index():
     return render_template(template_name_or_list='webpage.html')
@@ -121,9 +115,9 @@ def create_package():
             id = ids[len(ids) - 1] + 1
             # write id and name to database
         storage_client = storage.Client()
-        bucket = storage_client.bucket('autonomous-time-309221')  # updated bucket name
+        bucket = storage_client.bucket('autonomous-time-309221.appspot.com')  # updated bucket name
         # blob name your_bucket_name/path_in_gcs
-        blob = bucket.blob('packages')
+        blob = bucket.blob('api_calls.py')
         with blob.open('r') as file:
             if name in file.readlines():
                 return "Package exists already." + "409"
@@ -149,9 +143,9 @@ def delete_package():
 
     query_response = 0
     storage_client = storage.Client()
-    bucket = storage_client.bucket('autonomous-time-309221')
+    bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('packages')
+    blob = bucket.blob('api_calls.py')
     with blob.open('r') as file:
         lines = file.readlines()
     with blob.open('w') as file:
@@ -173,9 +167,10 @@ def delete_package():
 def get_package_by_ID():
     ident = request.args.get('id')
     storage_client = storage.Client()
-    bucket = storage_client.bucket('autonomous-time-309221')
+    bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('packages')
+    blob = bucket.blob('api_calls')
+    listBlobs()
     with blob.open('r') as file:
         lines = file.readlines()
         for line in lines:
@@ -188,9 +183,9 @@ def delete_package_by_ID():
     query_response = 0
     ident = request.args.get('id')
     storage_client = storage.Client()
-    bucket = storage_client.bucket('autonomous-time-309221')
+    bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('packages')
+    blob = bucket.blob('api_calls.py')
     with blob.open('r') as file:
         lines = file.readlines()
     with blob.open('w') as file:
@@ -232,7 +227,7 @@ def update_package():
                 # write back to database
                 break
 
-        return "Version is updated", 200
+        return "Version is d", 200
     # return "There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.", 400
     # return "Package does not exist", 404
     # return
@@ -250,9 +245,9 @@ def rate_package():
 @app.route('/reset', methods=['DELETE'])
 def reset():
     storage_client = storage.Client()
-    bucket = storage_client.bucket('autonomous-time-309221')
+    bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
-    blob = bucket.blob('packages')
+    blob = bucket.blob('api_calls.py')
     with blob.open('w') as file:
         file.truncate()
     return "Registry is reset", 200
@@ -265,18 +260,18 @@ def get_ID_packages():
     if offset is None:
         # print first page of entries
         storage_client = storage.Client()
-        bucket = storage_client.bucket('autonomous-time-309221')
+        bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
         # blob name your_bucket_name/path_in_gcs
-        blob = bucket.blob('packages')
+        blob = bucket.blob('api_calls.py')
         with blob.open('r') as file:
             lines = file.readlines
         return lines[0:min(len(lines), 20)], 200
     elif offset is not None:
         # print offset num entries
         storage_client = storage.Client()
-        bucket = storage_client.bucket('autonomous-time-309221')
+        bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
         # blob name your_bucket_name/path_in_gcs
-        blob = bucket.blob('packages')
+        blob = bucket.blob('api_calls.py')
         with blob.open('r') as file:
             lines = file.readlines
         if offset > len(lines):
@@ -299,12 +294,15 @@ def submit():
 # flask api call for running rating functionality
 
 
-
+def listBlobs():
+    client = storage.Client()
+    for blob in client.list_blobs('autonomous-time-309221.appspot.com', prefix='autonomous-time-309221.appspot.com/api_calls'):
+        print("\n\n"+str(blob)+"\n\n")
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print("begin test")
-    app.run(debug=True, use_reloader=False, port=8001)
+    app.run(debug=True, host='10.128.0.2', use_reloader=False, port=8001)
     # host='10.128.0.2',
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
