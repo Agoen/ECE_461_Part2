@@ -74,12 +74,6 @@ def getName(url):
             break
     return url[index:]
 
-
-def bucket_init():
-    storage_client = storage.Client()
-    bucket_name = "package_storage"
-    bucket = storage_client.create_bucket(bucket_name)
-
 @app.route('/')
 def index():
     return render_template(template_name_or_list='webpage.html')
@@ -121,7 +115,7 @@ def create_package():
             id = ids[len(ids) - 1] + 1
             # write id and name to database
         storage_client = storage.Client()
-        bucket = storage_client.bucket('autonomous-time-309221')  # updated bucket name
+        bucket = storage_client.bucket('autonomous-time-309221.appspot.com')  # updated bucket name
         # blob name your_bucket_name/path_in_gcs
         blob = bucket.blob('packages')
         with blob.open('r') as file:
@@ -149,7 +143,7 @@ def delete_package():
 
     query_response = 0
     storage_client = storage.Client()
-    bucket = storage_client.bucket('autonomous-time-309221')
+    bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
     blob = bucket.blob('packages')
     with blob.open('r') as file:
@@ -173,7 +167,7 @@ def delete_package():
 def get_package_by_ID():
     ident = request.args.get('id')
     storage_client = storage.Client()
-    bucket = storage_client.bucket('autonomous-time-309221')
+    bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
     blob = bucket.blob('packages')
     with blob.open('r') as file:
@@ -188,7 +182,7 @@ def delete_package_by_ID():
     query_response = 0
     ident = request.args.get('id')
     storage_client = storage.Client()
-    bucket = storage_client.bucket('autonomous-time-309221')
+    bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
     blob = bucket.blob('packages')
     with blob.open('r') as file:
@@ -250,7 +244,7 @@ def rate_package():
 @app.route('/reset', methods=['DELETE'])
 def reset():
     storage_client = storage.Client()
-    bucket = storage_client.bucket('autonomous-time-309221')
+    bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
     # blob name your_bucket_name/path_in_gcs
     blob = bucket.blob('packages')
     with blob.open('w') as file:
@@ -265,7 +259,7 @@ def get_ID_packages():
     if offset is None:
         # print first page of entries
         storage_client = storage.Client()
-        bucket = storage_client.bucket('autonomous-time-309221')
+        bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
         # blob name your_bucket_name/path_in_gcs
         blob = bucket.blob('packages')
         with blob.open('r') as file:
@@ -274,7 +268,7 @@ def get_ID_packages():
     elif offset is not None:
         # print offset num entries
         storage_client = storage.Client()
-        bucket = storage_client.bucket('autonomous-time-309221')
+        bucket = storage_client.bucket('autonomous-time-309221.appspot.com')
         # blob name your_bucket_name/path_in_gcs
         blob = bucket.blob('packages')
         with blob.open('r') as file:
@@ -305,6 +299,6 @@ def submit():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print("begin test")
-    app.run(debug=True, use_reloader=False, port=8001)
+    app.run(debug=True, host='10.128.0.2', use_reloader=False, port=8001)
     # host='10.128.0.2',
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
