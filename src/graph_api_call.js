@@ -1,23 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -27,15 +8,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.write_to_log_file = void 0;
-const fs = __importStar(require("fs"));
-const axios_1 = __importDefault(require("axios"));
-const { exec } = require('child_process');
-const readline = require('readline');
+var fs = require("fs");
+var axios_1 = require("axios");
+var exec = require('child_process').exec;
+var readline = require('readline');
 // Global variables
 var license_compatibility;
 var bus_factor;
@@ -104,83 +109,83 @@ function ramp_upTime_calc() {
 }
 // Function to request APIs from github GraphQL API
 function getData_github(requestUrl, owner, repo, flag) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var query = `
-    query {
-      repository(owner: "owner123", name: "repo1") {
-        name
-        url
-        description
-        watchers {
-        totalCount
-        }
-        forks{
-          totalCount
-        }
-        issues {
-            totalCount
-        }
-        stargazerCount
-        }
-        }
-      `;
-        // replace the owner and repo name in the query
-        var prev_owner = "owner123";
-        var prev_repo = "repo1";
-        query = query.replace(prev_owner, owner);
-        query = query.replace(prev_repo, repo);
-        // make the request to the github graphql api
-        try {
-            yield (0, axios_1.default)({
-                url: requestUrl,
-                method: 'post',
-                headers: {
-                    Authorization: `Token ${github_token}`,
-                    Accept: 'application/vnd.github+json; application/vnd.github.hellcat-preview+json; application/vnd.github.squirrel-girl-preview+json'
-                },
-                data: {
-                    query: query
-                }
-            }).then((response) => {
-                // get the data from the response
-                if (flag == 0) {
-                    repo_URL = response.data.data.repository.url;
-                }
-                else {
-                    repo_URL = "https://npmsjs.com/package/" + response.data.data.repository.name;
-                }
-                issuesCount = response.data.data.repository.issues.totalCount; //store the number of issues
-                forksCount = response.data.data.repository.forks.totalCount; //store the number of forks
-                watchersCount = response.data.data.repository.watchers.totalCount; //store the number of watchers
-                stargazerCount = response.data.data.repository.stargazerCount; //store the number of stargazers
-                // call the function to calculate the scores
-                calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, net_score);
-            });
-        }
-        catch (error) {
-            console.error("There was a problem with the fetch operation with ", requestUrl); //throws an error if a bad URL was inputted 
-            console.error(error);
-        }
+    return __awaiter(this, void 0, void 0, function () {
+        var query, prev_owner, prev_repo, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    query = "\n    query {\n      repository(owner: \"owner123\", name: \"repo1\") {\n        name\n        url\n        description\n        watchers {\n        totalCount\n        }\n        forks{\n          totalCount\n        }\n        issues {\n            totalCount\n        }\n        stargazerCount\n        }\n        }\n      ";
+                    prev_owner = "owner123";
+                    prev_repo = "repo1";
+                    query = query.replace(prev_owner, owner);
+                    query = query.replace(prev_repo, repo);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, (0, axios_1["default"])({
+                            url: requestUrl,
+                            method: 'post',
+                            headers: {
+                                Authorization: "Token ".concat(github_token),
+                                Accept: 'application/vnd.github+json; application/vnd.github.hellcat-preview+json; application/vnd.github.squirrel-girl-preview+json'
+                            },
+                            data: {
+                                query: query
+                            }
+                        }).then(function (response) {
+                            // get the data from the response
+                            if (flag == 0) {
+                                repo_URL = response.data.data.repository.url;
+                            }
+                            else {
+                                repo_URL = "https://npmsjs.com/package/" + response.data.data.repository.name;
+                            }
+                            issuesCount = response.data.data.repository.issues.totalCount; //store the number of issues
+                            forksCount = response.data.data.repository.forks.totalCount; //store the number of forks
+                            watchersCount = response.data.data.repository.watchers.totalCount; //store the number of watchers
+                            stargazerCount = response.data.data.repository.stargazerCount; //store the number of stargazers
+                            // call the function to calculate the scores
+                            calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, net_score);
+                        })];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_1 = _a.sent();
+                    console.error("There was a problem with the fetch operation with ", requestUrl); //throws an error if a bad URL was inputted 
+                    console.error(error_1);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
     });
 }
 // Function to request APIs
 function getData_npmjs(requestUrl) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var response = yield axios_1.default.get(requestUrl);
-        var npmjs_urls = response.data['repository']['url']; //Extract Data from the URL
-        npmjs_urls = npmjs_urls.split('//');
-        npmjs_urls = npmjs_urls[1].split('@'); //This to remove "@" symbol from the 
-        if (npmjs_urls.length > 1) {
-            npmjs_urls = npmjs_urls[1];
-        }
-        if (typeof npmjs_urls == 'object') {
-            npmjs_urls = npmjs_urls[0];
-        }
-        npmjs_urls = npmjs_urls.replace('.git', '');
-        var owner = npmjs_urls.split("/")[1];
-        var repo = npmjs_urls.split("/")[2];
-        var request_url = "https://api.github.com/graphql";
-        getData_github(request_url, owner, repo, 1); //Get and store the respone from github API
+    return __awaiter(this, void 0, void 0, function () {
+        var response, npmjs_urls, owner, repo, request_url;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, axios_1["default"].get(requestUrl)];
+                case 1:
+                    response = _a.sent();
+                    npmjs_urls = response.data['repository']['url'];
+                    npmjs_urls = npmjs_urls.split('//');
+                    npmjs_urls = npmjs_urls[1].split('@'); //This to remove "@" symbol from the 
+                    if (npmjs_urls.length > 1) {
+                        npmjs_urls = npmjs_urls[1];
+                    }
+                    if (typeof npmjs_urls == 'object') {
+                        npmjs_urls = npmjs_urls[0];
+                    }
+                    npmjs_urls = npmjs_urls.replace('.git', '');
+                    owner = npmjs_urls.split("/")[1];
+                    repo = npmjs_urls.split("/")[2];
+                    request_url = "https://api.github.com/graphql";
+                    getData_github(request_url, owner, repo, 1); //Get and store the respone from github API
+                    return [2 /*return*/];
+            }
+        });
     });
 }
 function calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, net_score) {
@@ -242,13 +247,13 @@ function main() {
     var filename = args[2];
     filename = filename.replace(/\r/g, '');
     // read the file
-    const string_urls = fs.readFileSync(filename, 'utf-8');
+    var string_urls = fs.readFileSync(filename, 'utf-8');
     var arr_urls = string_urls.split(/\r?\n/);
     // read license txt file
-    const rl = readline.createInterface({
-        input: fs.createReadStream('src/license.txt'),
+    var rl = readline.createInterface({
+        input: fs.createReadStream('src/license.txt')
     });
-    rl.on('line', (line) => {
+    rl.on('line', function (line) {
         licenseArray.push(line);
     });
     // Stack Overflow Citation 
@@ -257,7 +262,7 @@ function main() {
     i = 0;
     count = 0;
     global_url_count = arr_urls.length;
-    arr_urls.forEach((url) => {
+    arr_urls.forEach(function (url) {
         // get the owner and repo name from the url
         var owner = url.split('/')[3];
         var repo = url.split('/')[4];
