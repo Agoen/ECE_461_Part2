@@ -1,0 +1,3 @@
+{
+  NaN: [ 'https://github.com/Agoen/ECE_461_Part2', 0.98, NaN, 0, NaN, 0 ]
+}

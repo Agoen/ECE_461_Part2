@@ -12,7 +12,11 @@
     <div class="container">
         <div class="sub-container">
             <form action="/submit" class="package-search">
-                <input id="url" type="text" placeholder="Input Package Here" name="url">
+                <input id="url" type="text" placeholder="Look up packages to add" name="url">
+                <button id="submit-button" class="submit-button" type="submit">Submit</button>
+            </form>
+            <form action="/submit" class="package-search">
+                <input id="packages" type="text" placeholder="Search Packages Within Website" name="packages">
                 <button id="submit-button" class="submit-button" type="submit">Submit</button>
             </form>
             <form action="/package/{id}" method="PUT">
@@ -27,8 +31,13 @@
             <form action="/reset">
                 <button class="download-button">Clear</button>
             </form>
+            <form action="/delete">
+                <button class="download-button">delete</button>
+            </form>
             <b>URL to rate (most recent):</b>
-            <p id="url" class="urls">{{ data_url }}</p>
+            <p id="urls" class="urls"></p>
+            <b>Rated URLs, 0.5 or above</b>
+            <p class="urls>">{{ data_url }}: {{ net_score }}</p>
 
                 <!-- code for displaying whatever urls that the user wants to do functions on -->
                 <script>
